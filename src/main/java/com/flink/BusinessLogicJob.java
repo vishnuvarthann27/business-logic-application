@@ -105,14 +105,14 @@ public class BusinessLogicJob {
 
         DataStream<LOAN_TXN> aggregatedLoanTxn = loanTxnSource
                 .keyBy((KeySelector<LOAN_TXN, Integer>) LOAN_TXN::getInvstr_loan_nbr)
-                .window(TumblingEventTimeWindows.of(org.apache.flink.streaming.api.windowing.time.Time.hours(1)))
+                .window(TumblingEventTimeWindows.of(org.apache.flink.streaming.api.windowing.time.Time.minutes(2)))
                 .aggregate(new LoanTxnAggregator());
 
         return loanSource
                 .join(aggregatedLoanTxn)
                 .where(LOAN::getInvstr_loan_nbr)
                 .equalTo(LOAN_TXN::getInvstr_loan_nbr)
-                .window(TumblingEventTimeWindows.of(org.apache.flink.streaming.api.windowing.time.Time.hours(1)))
+                .window(TumblingEventTimeWindows.of(org.apache.flink.streaming.api.windowing.time.Time.minutes(2)))
                 .apply(new JoinFunction<LOAN, LOAN_TXN, Reporting_Record>() {
                     @Override
                     public Reporting_Record join(LOAN loan, LOAN_TXN aggregatedLoanTxn) {
